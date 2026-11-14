@@ -1,0 +1,102 @@
+[
+  {
+    "pregunta": "¿Qué es un modelo de lenguaje grande (LLM) y qué arquitectura utiliza?",
+    "referencia": "Un LLM es un sistema de inteligencia artificial entrenado con enormes cantidades de texto para predecir la siguiente palabra en una secuencia. Funciona mediante arquitecturas de tipo Transformer, que usan un mecanismo de atención para relacionar palabras entre sí sin importar qué tan lejos estén en el texto.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Cuáles son los pilares del Prompt Engineering?",
+    "referencia": "Los pilares son Tarea, Contexto, Persona, Formato, Tono y Ejemplos.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué diferencia hay entre Zero-Shot, One-Shot y Few-Shot Prompting?",
+    "referencia": "El Zero-Shot no incluye ejemplos en el prompt, el One-Shot incluye un solo ejemplo y el Few-Shot incluye varios ejemplos de pares pregunta-respuesta para que el modelo aprenda el patrón o formato deseado sin reentrenarlo.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Para qué sirven los delimitadores en un prompt?",
+    "referencia": "Separan claramente las distintas partes de un prompt, evitando que el modelo confunda las instrucciones con los datos de entrada. Los más comunes son las comillas triples, las etiquetas tipo XML y los símbolos de numeral.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué es RAG y qué ventajas ofrece?",
+    "referencia": "RAG (Retrieval-Augmented Generation) combina un sistema de recuperación de información con un modelo generativo: busca fragmentos relevantes en documentos externos y los inserta como contexto en el prompt antes de generar la respuesta. Reduce las alucinaciones y mejora la trazabilidad porque se puede citar la fuente.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué es un embedding?",
+    "referencia": "Es una representación numérica (un vector) de un texto, imagen u otro dato que captura su significado semántico. Textos con significados similares tienen vectores cercanos entre sí en el espacio vectorial.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué ejemplos de bases de datos vectoriales se mencionan?",
+    "referencia": "Se mencionan Pinecone, Chroma y FAISS.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué es un agente de IA y qué patrón de funcionamiento sigue?",
+    "referencia": "Es un sistema que usa un LLM como cerebro para tomar decisiones y ejecutar acciones de forma autónoma. Sigue un ciclo de razonamiento y acción: observa, decide qué herramienta usar, ejecuta la acción, observa el resultado y repite hasta cumplir el objetivo. Este patrón se conoce como ReAct.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué es el Function Calling?",
+    "referencia": "Es la capacidad de un modelo de lenguaje para identificar cuándo debe usar una herramienta externa y generar los parámetros necesarios para invocarla, en lugar de responder directamente con texto.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Cuándo conviene usar Fine-Tuning en lugar de solo Prompt Engineering?",
+    "referencia": "El Fine-Tuning reentrena el modelo con datos específicos y puede lograr un comportamiento más consistente en tareas muy específicas, pero requiere más recursos y datos etiquetados. Se recomienda intentar primero Prompt Engineering o RAG porque son más rápidos, económicos y fáciles de mantener.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué estrategias existen para reducir las alucinaciones de un modelo?",
+    "referencia": "Usar RAG para basar las respuestas en documentos verificados, bajar la temperatura del modelo, instruirlo explícitamente para que admita cuando no sabe algo y pedirle que cite las fuentes utilizadas.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué efecto tiene usar una temperatura baja en un modelo generativo?",
+    "referencia": "Una temperatura baja, cercana a cero, hace que el modelo sea más determinista y conservador, lo que es ideal para tareas que requieren precisión como la clasificación o la extracción de datos.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué prácticas se usan para evaluar una aplicación basada en LLM?",
+    "referencia": "Medir precisión y recall en tareas de clasificación, evaluación humana, usar un segundo LLM como juez, pruebas de regresión con casos fijos y monitoreo de alucinaciones o respuestas fuera de contexto en producción.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué es un modelo multimodal y qué aplicaciones permite?",
+    "referencia": "Es un modelo capaz de procesar y generar más de un tipo de dato, como texto, imágenes, audio o video. Permite describir imágenes, generar código a partir de un boceto, transcribir audio a texto o responder preguntas sobre un PDF con tablas y gráficos.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Cómo deben protegerse las claves de API al desplegar una aplicación de IA?",
+    "referencia": "Nunca deben exponerse en el código fuente ni en repositorios públicos; se recomienda usar variables de entorno.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Qué responsabilidad tiene el desarrollador frente a los sesgos de los modelos de lenguaje?",
+    "referencia": "Debe establecer barreras que eviten respuestas discriminatorias, ofensivas o peligrosas, ser transparente con los usuarios sobre las limitaciones del sistema y evitar que la IA tome decisiones críticas sin supervisión humana en contextos sensibles como salud, justicia o finanzas.",
+    "en_corpus": true
+  },
+  {
+    "pregunta": "¿Cuál es la capital de Francia?",
+    "referencia": "No tengo información suficiente en el material de estudio para responder esto con precisión.",
+    "en_corpus": false
+  },
+  {
+    "pregunta": "¿Cómo se implementa una lista enlazada en C++?",
+    "referencia": "No tengo información suficiente en el material de estudio para responder esto con precisión.",
+    "en_corpus": false
+  },
+  {
+    "pregunta": "¿Cuánto cuesta la API de Gemini por millón de tokens?",
+    "referencia": "No tengo información suficiente en el material de estudio para responder esto con precisión.",
+    "en_corpus": false
+  },
+  {
+    "pregunta": "¿Quién ganó el Mundial de fútbol de 2022?",
+    "referencia": "No tengo información suficiente en el material de estudio para responder esto con precisión.",
+    "en_corpus": false
+  }
+]

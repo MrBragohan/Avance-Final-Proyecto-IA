@@ -1,0 +1,7 @@
+# --- Dependencias SOLO para evaluar con Ragas (no se necesitan en el despliegue) ---
+-r requirements.txt
+ragas
+langchain-groq
+langchain-google-genai
+pandas
+matplotlib

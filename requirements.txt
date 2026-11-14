@@ -1,0 +1,22 @@
+# --- Dependencias de la APP (lo que se instala al desplegar) ---
+# PyTorch solo CPU: evita descargar la versión con CUDA (~2 GB) en el servidor.
+# Si el despliegue falla por esta línea, elimínala (funciona igual, solo tarda más).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+
+streamlit
+python-dotenv
+groq
+tavily-python
+google-genai
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-chroma
+langchain-huggingface
+sentence-transformers
+chromadb
+pypdf
+docx2txt
+beautifulsoup4
+lxml

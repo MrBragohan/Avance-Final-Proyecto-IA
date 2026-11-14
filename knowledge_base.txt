@@ -1,0 +1,126 @@
+[TEMA: Modelos de Lenguaje (LLMs)]
+Un Modelo de Lenguaje Grande (LLM, por sus siglas en inglés) es un sistema de inteligencia
+artificial entrenado con enormes cantidades de texto para predecir la siguiente palabra en
+una secuencia. Gracias a este entrenamiento, es capaz de generar texto coherente, responder
+preguntas, traducir idiomas y razonar sobre problemas complejos. Los LLM funcionan mediante
+arquitecturas de tipo Transformer, que usan un mecanismo llamado "atención" para relacionar
+palabras entre sí sin importar qué tan lejos estén dentro del texto. Ejemplos de LLM son
+GPT, Gemini, Claude y Llama.
+
+[TEMA: Prompt Engineering]
+El Prompt Engineering es la disciplina de diseñar instrucciones (prompts) efectivas para
+obtener el mejor resultado posible de un modelo de lenguaje. Se apoya en varios pilares:
+Tarea (qué debe hacer el modelo), Contexto (información de fondo necesaria), Persona (el
+rol que debe adoptar la IA), Formato (cómo debe estructurarse la respuesta), Tono (estilo
+de comunicación) y Ejemplos (muestras de la salida esperada). Un buen prompt reduce las
+ambigüedades y disminuye la probabilidad de que el modelo "alucine" (invente información).
+
+[TEMA: Few-Shot Prompting]
+El Few-Shot Prompting consiste en incluir ejemplos de pares pregunta-respuesta dentro del
+prompt antes de la consulta real, para que el modelo aprenda el patrón o formato deseado
+sin necesidad de reentrenarlo. Se diferencia del Zero-Shot Prompting (sin ejemplos) y del
+One-Shot Prompting (un solo ejemplo). Es especialmente útil cuando se necesita un formato
+de salida muy específico, como JSON, tablas o clasificaciones con etiquetas fijas.
+
+[TEMA: Delimitadores en Prompts]
+Los delimitadores son marcadores que separan claramente las distintas partes de un prompt,
+evitando que el modelo confunda instrucciones con datos de entrada. Los más comunes son las
+comillas triples, las etiquetas tipo XML (por ejemplo, etiquetas de contexto) y los
+símbolos de numeral (###). Usar delimitadores reduce ambigüedades, especialmente
+cuando el texto de entrada es largo o contiene múltiples secciones.
+
+[TEMA: RAG - Retrieval-Augmented Generation]
+RAG es una arquitectura que combina un sistema de recuperación de información (Retrieval)
+con un modelo generativo (Generation). En lugar de depender únicamente del conocimiento
+interno del LLM, el sistema primero busca fragmentos relevantes en una base de datos o
+documentos externos, y luego los inserta como contexto en el prompt antes de generar la
+respuesta. Esto permite que la IA responda con información actualizada, específica de una
+empresa, o de dominio privado, reduciendo las alucinaciones y mejorando la trazabilidad
+de las respuestas, ya que se puede citar la fuente.
+
+[TEMA: Embeddings y Bases de Datos Vectoriales]
+Un embedding es una representación numérica, un vector, de un texto, imagen u otro dato,
+que captura su significado semántico. Textos con significados similares tienen vectores
+cercanos entre sí en el espacio vectorial. Las bases de datos vectoriales, como Pinecone,
+Chroma o FAISS, almacenan estos embeddings y permiten realizar búsquedas por similitud,
+por ejemplo similitud coseno, en lugar de coincidencias exactas de palabras. Son la pieza
+central de un sistema RAG avanzado, ya que permiten encontrar los fragmentos más relevantes
+de una base de conocimiento sin depender de coincidencias literales de texto.
+
+[TEMA: Agentes de IA]
+Un agente de IA es un sistema que utiliza un LLM como cerebro para tomar decisiones y
+ejecutar acciones de forma autónoma, en lugar de solo generar texto. Un agente típico sigue
+un ciclo de razonamiento y acción: observa el estado actual, decide qué herramienta usar,
+por ejemplo buscar en la web, consultar una base de datos o ejecutar código, ejecuta esa
+acción, observa el resultado y repite el proceso hasta cumplir el objetivo. Este patrón se
+conoce comúnmente como ReAct, que significa Reasoning más Acting.
+
+[TEMA: Function Calling]
+El Function Calling, también llamado Tool Use, es la capacidad de un modelo de lenguaje
+para identificar cuándo debe usar una herramienta externa y generar los parámetros
+necesarios para invocarla, en lugar de responder directamente con texto. El desarrollador
+define un conjunto de funciones disponibles, con su nombre, descripción y parámetros
+esperados, y el modelo decide cuál usar según la consulta del usuario. Esto permite
+construir aplicaciones que consultan APIs externas, bases de datos, calculadoras o
+cualquier sistema conectado.
+
+[TEMA: Fine-Tuning]
+El Fine-Tuning consiste en reentrenar un modelo base con un conjunto de datos específico
+para que ajuste sus parámetros internos y se especialice en una tarea concreta. A diferencia
+del Prompt Engineering, que no modifica el modelo y solo cambia las instrucciones de entrada,
+el fine-tuning requiere más recursos computacionales y datos etiquetados, pero puede lograr
+un comportamiento más consistente para tareas muy específicas. En la práctica, se recomienda
+primero intentar resolver el problema con Prompt Engineering o RAG antes de recurrir al
+fine-tuning, ya que es más rápido, económico y fácil de mantener.
+
+[TEMA: Alucinaciones en IA]
+Una alucinación ocurre cuando un modelo de lenguaje genera información que suena coherente
+y convincente, pero que es falsa o no está respaldada por ninguna fuente real. Las
+alucinaciones son un riesgo importante en aplicaciones críticas, como las legales, médicas
+o financieras. Estrategias para reducirlas incluyen usar RAG para basar las respuestas en
+documentos verificados, bajar la temperatura del modelo para obtener respuestas más
+precisas, instruir explícitamente al modelo a admitir cuando no sabe algo, y pedir que
+cite las fuentes utilizadas en su respuesta.
+
+[TEMA: Temperatura y Parámetros de Generación]
+La temperatura es un parámetro que controla la aleatoriedad de las respuestas de un modelo
+generativo. Una temperatura baja, cercana a cero, hace que el modelo sea más determinista y
+conservador, ideal para tareas que requieren precisión, como la clasificación o extracción
+de datos. Una temperatura alta genera respuestas más creativas y variadas, útil para
+generación de historias o lluvia de ideas. Otros parámetros comunes son max_output_tokens,
+que limita la longitud de la respuesta, y top_p, que controla la diversidad de palabras
+candidatas.
+
+[TEMA: Evaluación de Aplicaciones de IA]
+Evaluar una aplicación basada en LLM implica medir tanto la calidad de las respuestas como
+el comportamiento del sistema completo. Algunas métricas y prácticas comunes son precisión
+y recall en tareas de clasificación, evaluación humana donde revisores califican las
+respuestas, uso de un segundo LLM como juez para calificar respuestas, pruebas de regresión
+con casos de prueba fijos, y monitoreo de alucinaciones o respuestas fuera de contexto en
+producción.
+
+[TEMA: Multimodalidad]
+Un modelo multimodal es capaz de procesar y generar más de un tipo de dato, como texto,
+imágenes, audio o video, dentro de la misma conversación. Esto permite aplicaciones como
+describir el contenido de una imagen, generar código a partir de un boceto dibujado a mano,
+transcribir audio a texto, o responder preguntas sobre un documento PDF que contiene tablas
+y gráficos. La multimodalidad amplía significativamente los casos de uso de la IA generativa
+más allá del texto plano.
+
+[TEMA: Despliegue de Aplicaciones de IA]
+Desplegar una aplicación de IA en producción implica consideraciones adicionales a las de
+una aplicación de software tradicional, como la gestión de costos por uso de tokens, ya que
+las llamadas a la API tienen un costo asociado por cantidad de texto procesado, el manejo de
+límites de tasa impuestos por el proveedor del modelo, el control de la latencia o tiempo
+de respuesta, el registro de las conversaciones para depuración y mejora continua, y la
+seguridad de las claves de API, que nunca deben exponerse en el código fuente ni en
+repositorios públicos, por lo que se recomienda el uso de variables de entorno.
+
+[TEMA: Ética y Sesgos en IA]
+Los modelos de lenguaje aprenden patrones a partir de los datos con los que fueron
+entrenados, lo que significa que pueden reproducir sesgos presentes en esos datos, ya sean
+de género, raza o cultura, entre otros. Al desarrollar aplicaciones de IA es responsabilidad
+del desarrollador establecer barreras que eviten respuestas discriminatorias, ofensivas o
+peligrosas, así como ser transparente con los usuarios sobre las limitaciones del sistema y
+evitar que la IA tome decisiones críticas sin supervisión humana en contextos sensibles como
+salud, justicia o finanzas.

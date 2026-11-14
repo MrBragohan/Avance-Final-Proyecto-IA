@@ -1,0 +1,21 @@
+{
+  "tag": "baseline",
+  "chunk_size": 500,
+  "chunk_overlap": 50,
+  "top_k": 4,
+  "n_preguntas": 20,
+  "global": {
+    "faithfulness": 0.5457,
+    "answer_relevancy": 0.9043,
+    "context_precision": 0.7836,
+    "context_recall": 0.7456
+  },
+  "en_corpus": {
+    "faithfulness": 0.6821,
+    "answer_relevancy": 0.9043,
+    "context_precision": 0.9306,
+    "context_recall": 0.8854
+  },
+  "tasa_rechazo_correcto": 1.0,
+  "tasa_falso_rechazo": 0.0
+}
