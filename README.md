@@ -5,7 +5,7 @@ En el Avance 2 era un pipeline RAG fijo (siempre recupera → siempre genera). E
 **agente**: el LLM decide *si* consulta la base de conocimientos, *qué* herramienta usa y *cuántas veces*;
 el programa ejecuta las herramientas y le devuelve los resultados.
 
-**App desplegada:** `https://avance-final-proyecto-ia-5zqcarkazrhvdoctnkogjv.streamlit.app/`
+**App desplegada:** `https://proyectoia-b8nfsdkv4w6anf6cv22fed.streamlit.app/`
 
 > El README del Avance 2 se conserva en [`avance2/README_avance2.md`](avance2/README_avance2.md).
 
@@ -186,33 +186,45 @@ Si una celda de Ragas queda vacía por límite de tasa (429), se recalcula solo 
 ### 3.1 Ragas: pipeline fijo frente a agente
 Mismo `eval_dataset.json` del Avance 2 (16 preguntas en el corpus + 4 fuera), mismo índice, mismo LLM generador y
 mismo juez (`openai/gpt-oss-120b`, `temperature=0`, embeddings locales). Los `retrieved_contexts` del agente son los
-fragmentos que devolvieron sus tools. El pipeline se **vuelve a evaluar en la misma corrida** (en vez de copiar las
-cifras del Avance 2) para que la única diferencia sea el sistema; sobre el mismo índice (con la mejora de `seccion`).
+fragmentos que devolvieron sus tools.
 
 | Métrica (16 preguntas en corpus) | Pipeline fijo (Av. 2) | Agente (Av. 3) | Variación |
 |---|---|---|---|
-| faithfulness | _completar_ | _completar_ | |
-| answer_relevancy | _completar_ | _completar_ | |
-| context_precision | _completar_ | _completar_ | |
-| context_recall | _completar_ | _completar_ | |
-| Rechazo con frase fija (4 fuera del corpus) | _completar_ | _completar_ | |
-| Falso rechazo (16 en corpus) | _completar_ | _completar_ | |
+| faithfulness | 0,682 | _pendiente_ | |
+| answer_relevancy | no válido (1 de 16 valores) | _pendiente_ | |
+| context_precision | 0,931 | _pendiente_ | |
+| context_recall | 0,885 | _pendiente_ | |
+| Rechazo con frase fija (4 fuera del corpus) | 100 % (4/4) | 75 % (3/4) | −25 pp |
+| Falso rechazo (16 en corpus) | 0 % | 0 % | 0 |
 
-> Referencia: la línea base original del Avance 2 dio faithfulness 0,682, context_precision 0,931 y
-> context_recall 0,885 (answer_relevancy no era válida: ver `avance2/README_avance2.md`).
+> **Origen de las cifras.** La columna del pipeline es la línea base del Avance 2 (`results/ragas_baseline.csv`).
+> `answer_relevancy` no es comparable porque la API de Groq solo admite `n=1` y la métrica falló en 15 de las 16
+> preguntas (solo quedó 0,904 en una). Las dos filas de rechazo salen de `results/corrida_av3.json`. La columna del
+> agente se completa con `python evaluate_agent.py ragas --sistemas agente` (ver «Cómo reproducirla»); si se quiere
+> una comparación estricta con el mismo juez en la misma corrida, también `--sistemas pipeline`, que además da un
+> `answer_relevancy` válido si se usa `--metricas answer_relevancy`.
+> **Límite de tokens:** el plan gratuito de Groq tiene un tope de 200 000 tokens por día; la primera evaluación se
+> interrumpió por ese límite. Ejecuta **un sistema por vez** y sin interrumpir con Ctrl+C.
 
-**Análisis (completar con tus resultados).** Preguntas que conviene contestar mirando `results/comparacion_av3.md`
-y `results/ragas_av3_*.csv`:
+**Qué muestra la línea base del Avance 2 (datos de `ragas_baseline.csv`):**
+- La *faithfulness* es la métrica débil (0,682). Seis preguntas quedaron por debajo de 0,60: pilares del prompt
+  engineering (0,47), delimitadores (0,58), agentes (0,56), temperatura (0,43), claves de API (0,57) y sesgos (0,50).
+  En todas esas respuestas el pipeline añadió una sección **«Ejemplo»** con analogías que no están en el contexto,
+  coherente con la hipótesis de que esa sección penaliza la fidelidad.
+- *context_precision* (0,931) y *context_recall* (0,885) son altas, con fallos puntuales de recuperación: sesgos
+  (recall 0,0), RAG (0,5) y agentes (0,67), donde la frase necesaria no estaba entre los 4 fragmentos recuperados.
+
+**Análisis del agente (completar con `results/ragas_av3_agente.csv`).** Preguntas que conviene contestar:
 - **faithfulness:** ¿cambió? Recuerda el factor de confusión: el agente ya no tiene la sección «Ejemplo», que era la
-  hipótesis de la baja fidelidad del Avance 2. Si sube, no todo el mérito es de las tools.
-- **context_precision / context_recall:** el agente escribe su propia consulta (con más o menos términos clave que la
-  pregunta literal) y recibe fragmentos de varias búsquedas en preguntas compuestas. Mira las preguntas donde difieren
-  y compara las consultas en `logs/uso_tools.jsonl` con la pregunta original. Además, el recorte a 600 caracteres y el
-  nuevo metadato `seccion` pueden afectar los fragmentos.
-- **Rechazo / falso rechazo:** ¿el agente sigue rechazando bien lo que no está? Si respondió con la web una pregunta
-  fuera del corpus (p. ej. el precio de la API de Gemini), no es un fallo de la política: revisa que cite `[web: URL]`.
-- **Respuestas sin contexto:** si el agente respondió sin llamar a ninguna tool una pregunta de la materia, su
-  `retrieved_contexts` es un marcador de «sin contexto» y *faithfulness* lo penaliza, como debe.
+  hipótesis de la baja fidelidad. Si sube, no todo el mérito es de las tools.
+- **context_precision / context_recall:** el agente escribe su propia consulta y puede hacer varias búsquedas. Mira
+  las preguntas donde difieren (sesgos, RAG y agentes en el baseline) y compara las consultas de
+  `logs/uso_tools.jsonl` con la pregunta original. El recorte a 600 caracteres y el metadato `seccion` también pueden
+  afectar los fragmentos.
+- **Rechazo / falso rechazo:** el agente rechazó 3 de las 4 preguntas fuera del corpus; la cuarta (precio de la API de
+  Gemini) la respondió con la web, lo que la política permite (revisar que cite `[web: URL]`).
+- **Respuestas sin contexto:** si el agente respondiera sin llamar a ninguna tool una pregunta de la materia, su
+  `retrieved_contexts` sería un marcador de «sin contexto» y *faithfulness* lo penalizaría, como debe.
 
 ### 3.2 Casos de comportamiento
 Ocho casos en `casos_comportamiento.json` con el comportamiento esperado **escrito antes de ejecutar** (haz el
@@ -221,16 +233,25 @@ commit del JSON antes de correr `run_casos.py`). Cubren: 1 saludo, 1 pregunta co
 El script registra tools llamadas, argumentos, nº de llamadas al LLM y compara con los *checks*; la tabla resultante
 queda en `results/casos_comportamiento.md` (cópiala aquí).
 
-| Caso | Comportamiento esperado | Tools llamadas | Llamadas LLM | ¿Cumplió? |
+| Caso | Comportamiento esperado | Tools llamadas (argumentos) | Llamadas LLM | ¿Cumplió? |
 |---|---|---|---|---|
-| C1 Saludo | Sin tools | _completar_ | _completar_ | _completar_ |
-| C2 Compuesta | `buscar_en_base` ≥ 2 veces (o cubre ambos temas) y cita | _completar_ | _completar_ | _completar_ |
-| C3 Tarea: fragmentos | `estimar_numero_fragmentos(12000, 500, 50)` → 27 | _completar_ | _completar_ | _completar_ |
-| C4 Tarea: costo | `estimar_costo_llm(2 000 000, 500 000, 0.15, 0.60)` → 0,60 USD | _completar_ | _completar_ | _completar_ |
-| C5 Pública/actual | base → web solo en sitios permitidos, `[web: URL]` | _completar_ | _completar_ | _completar_ |
-| C6 Responde la base | `buscar_en_base`, cita, sin web | _completar_ | _completar_ | _completar_ |
-| C7 Maliciosa | No vuelca el corpus ni rompe reglas | _completar_ | _completar_ | _completar_ |
-| C8 Fuera de alcance | Sin web, frase fija | _completar_ | _completar_ | _completar_ |
+| C1 Saludo | Sin tools | Ninguna | 1 | ✅ Sí |
+| C2 Compuesta | `buscar_en_base` ≥ 2 veces (o cubre ambos temas) y cita | `buscar_en_base` ×2 («definición de embedding», «ventajas de RAG») | 3 | ✅ Sí |
+| C3 Tarea: fragmentos | `estimar_numero_fragmentos(12000, 500, 50)` → 27 | `estimar_numero_fragmentos` (12000 / 500 / 50) | 2 | ✅ Sí |
+| C4 Tarea: costo | `estimar_costo_llm(2 000 000, 500 000, 0.15, 0.60)` → 0,60 USD | `estimar_costo_llm` (2 000 000 / 500 000 / 0,15 / 0,60) | 2 | ✅ Sí |
+| C5 Pública/actual | base → web solo en sitios permitidos, `[web: URL]` | `buscar_en_base` y `buscar_en_web` | 3 | ❌ No: faltó el marcador `[web: URL]` |
+| C6 Responde la base | `buscar_en_base`, cita, sin web | `buscar_en_base` | 2 | ✅ Sí |
+| C7 Maliciosa | No vuelca el corpus ni rompe reglas | Ninguna | 1 | ✅ Sí |
+| C8 Fuera de alcance | Sin web, frase fija | Ninguna | 1 | ✅ Sí |
+
+**Resultado: 7 de 8 casos cumplen** (`results/casos_comportamiento.md`). El único incumplimiento, C5, es de **formato**: el
+agente eligió bien las tools y su orden (primero la base, luego la web con resultados de `ai.google.dev`), pero la
+respuesta no marcó la fuente como `[web: URL]`. Es una limitación del prompt: una regla de formato escrita solo en el
+prompt no es una garantía, a diferencia de las reglas que viven en el código. Una mejora posible es reforzarla con
+un ejemplo few-shot de respuesta con web o añadir una comprobación en el código que advierta si hubo resultados web y
+la respuesta no cita ninguna URL. Además, en la prueba directa de la tool, los 3 resultados web fueron variantes de la
+misma página de precios con valores distintos ($0.30/$2.50 frente a $2.25/$18.00), por lo que hay que leer a qué
+modelo corresponde cada precio.
 
 **Defensa ante la instrucción maliciosa (C7), en capas:** (1) el prompt prohíbe volcar la base y trata la pregunta como
 dato; (2) aunque el modelo obedeciera, el código solo entrega 4 fragmentos × 600 caracteres por llamada y hay máximo
@@ -241,16 +262,23 @@ consulta corta que no puede contener texto de la base.
 `results/comparacion_av3.md` (sección 3) compara, para las mismas preguntas, el **promedio de llamadas al LLM, tokens
 (entrada y salida) y tiempo de respuesta** del pipeline fijo y del agente.
 
-| Sistema | Llamadas LLM (prom.) | Tokens entrada (prom.) | Tokens salida (prom.) | Tiempo (s, prom.) |
-|---|---|---|---|---|
-| Pipeline fijo | _completar_ | _completar_ | _completar_ | _completar_ |
-| Agente | _completar_ | _completar_ | _completar_ | _completar_ |
+| Grupo | Sistema | Llamadas LLM (prom.) | Tokens entrada (prom.) | Tokens salida (prom.) | Tiempo (s, prom.) |
+|---|---|---|---|---|---|
+| Todas (20) | Pipeline fijo | 1,00 | 1 173 | 284 | 2,94 |
+| Todas (20) | Agente | 1,95 | 5 640 | 368 | 22,67 |
+| En corpus (16) | Pipeline fijo | 1,00 | 1 159 | 331 | 3,47 |
+| En corpus (16) | Agente | 2,00 | 5 774 | 388 | 24,96 |
+| Fuera de corpus (4) | Pipeline fijo | 1,00 | 1 230 | 98 | 0,82 |
+| Fuera de corpus (4) | Agente | 1,75 | 5 107 | 288 | 13,52 |
 
-**Qué cabe esperar y por qué (verifícalo con tus datos):** el agente necesita como mínimo 2 llamadas al LLM cuando
-usa una tool (una para decidir y otra para responder) frente a 1 del pipeline; además reenvía en cada vuelta el
-prompt (más largo) y los esquemas de las tools. A cambio, un saludo o un cálculo no recorre la recuperación, la
-pregunta de seguimiento ya no necesita la llamada extra de reformulación, y la web solo se paga cuando hace falta.
-Por eso el análisis debe separar «en corpus» de «fuera de corpus» (la tabla del script lo hace).
+**Lectura de los datos.** En las 20 preguntas el agente hizo 1,95 llamadas al LLM frente a 1,00 y consumió unos
+6 008 tokens (entrada + salida) frente a 1 457, es decir ≈ 4,1 veces más: cada vuelta reenvía el prompt largo y los
+esquemas de las tools (un simple saludo ya cuesta ~2 000 tokens de entrada). Tardó 22,67 s frente a 2,94 s
+(≈ 7,7 veces), una cifra que probablemente incluye esperas por los límites de tasa de Groq (varias preguntas de 2
+llamadas tardaron 20–35 s). El agente solo gana en costo cuando evita trabajo: de las 20 preguntas, 2 se resolvieron
+sin ninguna tool (1 llamada) y la web solo se pagó en 1.
+A cambio, un saludo o un cálculo no recorren la recuperación, la pregunta de seguimiento no necesita la llamada
+extra de reformulación y la web solo se usa cuando hace falta.
 
 ## 4. Interfaz de chat desplegada
 
@@ -273,7 +301,7 @@ python -m venv venv
 .\venv\Scripts\Activate            # Windows  (Mac/Linux: source venv/bin/activate)
 pip install -r requirements.txt
 copy .env.example .env             # y pon GROQ_API_KEY y TAVILY_API_KEY   (Mac/Linux: cp)
-streamlit run app.py
+python -m streamlit run app.py     # en Windows, si «streamlit run» da «Acceso denegado»
 ```
 
 ### Despliegue (Streamlit Community Cloud)
@@ -285,15 +313,26 @@ TAVILY_API_KEY = "tu_clave_de_tavily_aqui"
 ```
 3. En el primer arranque se reconstruye el índice desde `docs/` (tarda unos minutos); luego queda en caché.
 
-## Notas y limitaciones
+## Notas, problemas conocidos y limitaciones
 - **Decisiones de diseño:** el bucle de tools está escrito sobre el SDK de Groq (sin framework de agentes) para tener
   control exacto de las llamadas al LLM, los límites y el registro; las tools exponen `.invoke()` como en LangChain.
 - Las pruebas de `tests/` verifican con dobles (LLM, índice y buscador falsos) todo lo que vive en el código:
   límites, política «primero la base», lista de sitios, bloqueo de fugas, límite de iteraciones y registro. **No**
   sustituyen a la evaluación con el LLM real (qué tool elige el modelo), que hacen `run_casos.py` y `evaluate_agent.py`.
-- El juez de Ragas es el mismo modelo que genera (limitación ya señalada en el Avance 2) y consume muchos tokens: el
-  plan gratuito de Groq puede agotarse; usa `--pausa` y `--metricas` para repartir la carga.
+- **Límite diario de Groq (200 000 tokens, plan gratuito):** `evaluate_agent.py correr` y Ragas lo agotan. Ejecuta
+  Ragas de un sistema por vez, sin interrumpir, y usa `--pausa` y `--metricas` para repartir la carga.
+- **Windows:** si `streamlit run app.py` da «Acceso denegado», usa `python -m streamlit run app.py`. Para leer el log
+  con acentos: `Get-Content logs\uso_tools.jsonl -Encoding UTF8`.
+- **Despliegue: la app responde «no tengo información» a preguntas que sí están en el material.** Es un problema del
+  índice de la app, no del agente: si el índice desplegado no incluye `knowledge_base.txt`, las preguntas sobre
+  LLMs, RAG, embeddings o agentes no tienen fragmentos que las respondan. Comprueba (1) que `docs/knowledge_base.txt` y
+  los 3 PDFs de clase estén en el repositorio de GitHub (la app lee `docs/`), y (2) en **Manage app → Logs** que el
+  arranque imprima `knowledge_base.txt: 15 página(s)/sección(es)` y `30 páginas/secciones -> 76 fragmentos`. Si el
+  corpus del repositorio es otro, los resultados medidos en local no corresponden a la app desplegada. Tras corregir
+  `docs/`, reinicia la app (Reboot) para que reconstruya el índice.
+- El juez de Ragas es el mismo modelo que genera (limitación ya señalada en el Avance 2) y consume muchos tokens.
 - `SCORE_MINIMO` (en `config.py`) está en 0 (desactivado); se puede calibrar con los resultados de Ragas.
+- El agente usa el tool calling de Groq; con Gemini solo funciona el pipeline fijo.
 
 ## Estructura del repositorio
 ```
