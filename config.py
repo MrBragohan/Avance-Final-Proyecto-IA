@@ -51,6 +51,7 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 TOP_K = 4
 LIMPIAR_ENCABEZADOS = True  # quita encabezados/pies de página repetidos en cada página
+MIN_CHARS_CHUNK = 60        # descarta fragmentos casi vacíos (p. ej. una diapositiva con solo «Arquitectura»)
 
 # --- Conversación ---
 MAX_HISTORIAL_TURNOS = 6  # nº de turnos (pregunta+respuesta) que se reenvían al modelo
@@ -69,7 +70,7 @@ FRASE_SIN_INFO = (
 # ===========================================================================
 
 # --- Bucle del agente ---
-MAX_ITERACIONES = 5          # máx. llamadas al LLM por pregunta (la última se hace SIN tools)
+MAX_ITERACIONES = 6          # máx. llamadas al LLM por pregunta (la última se hace SIN tools)
 AGENTE_TEMPERATURA = 0.2     # igual que el pipeline fijo del Avance 2, para comparar en igualdad
 LOG_TOOLS_PATH = "logs/uso_tools.jsonl"   # un registro JSON por pregunta
 

@@ -56,7 +56,7 @@ class LLMGuionado:
         self.guion, self.llamadas = list(guion), []
 
     def chat_tools(self, mensajes, sistema=None, tools=None, temperatura=0.2, max_tokens=4096):
-        self.llamadas.append({"n_mensajes": len(mensajes), "tools": tools})
+        self.llamadas.append({"n_mensajes": len(mensajes), "tools": tools, "mensajes": list(mensajes)})
         paso = self.guion.pop(0)
         return {"contenido": paso.get("texto", ""), "tool_calls": paso.get("tools", []),
                 "tokens_entrada": 100, "tokens_salida": 20}
@@ -217,6 +217,26 @@ class TestBucle(unittest.TestCase):
         self.assertEqual([t["nombre"] for t in r["herramientas_usadas"]], ["buscar_en_base"] * 2)
         self.assertEqual(r["llamadas_llm"], 2)
         self.assertEqual(r["tokens_entrada"], 200)
+
+    def test_busqueda_repetida_no_se_reejecuta(self):
+        guion = [{"tools": [llamada("buscar_en_base", {"consulta": "pilares"}, "a")]},
+                 {"tools": [llamada("buscar_en_base", {"consulta": "pilares"}, "b")]},
+                 {"texto": "Respuesta."}]
+        a, _ = self.agente(guion)
+        r = a.responder("¿pilares?")
+        self.assertIn("ya ejecutaste", r["herramientas_usadas"][1]["resultado"])
+        self.assertEqual(r["respuesta"], "Respuesta.")
+
+    def test_ultima_vuelta_envia_resultados_como_texto_sin_tool_calls(self):
+        guion = [{"tools": [llamada("buscar_en_base", {"consulta": f"q{i}"}, f"c{i}")]} for i in range(2)]
+        guion.append({"texto": "Respuesta final."})
+        a, llm = self.agente(guion, max_it=3)
+        a.responder("pregunta")
+        ultima = llm.llamadas[-1]
+        self.assertIsNone(ultima["tools"])
+        self.assertTrue(all(m["role"] in ("user", "assistant") and not m.get("tool_calls")
+                            for m in ultima["mensajes"]))
+        self.assertIn("<resultados_de_herramientas>", ultima["mensajes"][-1]["content"])
 
     def test_tool_de_dominio_con_argumentos_del_llm(self):
         a, llm = self.agente([

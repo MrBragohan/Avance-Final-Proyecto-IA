@@ -125,6 +125,8 @@ class LLMClient:
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = "auto"
+        if "gpt-oss" in (self.modelo or ""):
+            kwargs["extra_body"] = {"reasoning_effort": "low"}   # menos latencia y tokens de razonamiento
         resp = self._cliente.chat.completions.create(**kwargs)
         msg = resp.choices[0].message
         uso = getattr(resp, "usage", None)

@@ -149,6 +149,9 @@ def dividir_documentos(documentos, chunk_size, chunk_overlap):
         separators=["\n\n", "\n", ". ", " ", ""],
     )
     chunks = splitter.split_documents(documentos)
+    # Descarta fragmentos casi vacíos (títulos sueltos como «Arquitectura»): al ser tan cortos su
+    # embedding se parece a cualquier consulta corta y aparecen de primeros sin aportar nada.
+    chunks = [c for c in chunks if len(c.page_content.strip()) >= config.MIN_CHARS_CHUNK]
 
     # chunk_id incremental por documento: permite citar "documento + fragmento #n"
     contadores = {}
@@ -178,8 +181,8 @@ def crear_embeddings():
 # ---------------------------------------------------------------------------
 def ruta_indice(chunk_size, chunk_overlap):
     """Un directorio por configuración: permite comparar iteraciones sin pisar el índice."""
-    # sufijo _v3: el índice del Avance 3 tiene el metadato extra `seccion`
-    return os.path.join(config.CHROMA_BASE_DIR, f"cs{chunk_size}_ov{chunk_overlap}_v3")
+    # sufijo _v4: índice con metadato `seccion` y SIN fragmentos casi vacíos (fuerza reconstrucción)
+    return os.path.join(config.CHROMA_BASE_DIR, f"cs{chunk_size}_ov{chunk_overlap}_v4")
 
 
 def obtener_indice(embeddings, chunk_size, chunk_overlap, reconstruir=False):
