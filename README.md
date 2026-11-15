@@ -5,7 +5,7 @@ En el Avance 2 era un pipeline RAG fijo (siempre recupera → siempre genera). E
 **agente**: el LLM decide *si* consulta la base de conocimientos, *qué* herramienta usa y *cuántas veces*;
 el programa ejecuta las herramientas y le devuelve los resultados.
 
-**App desplegada:** `https://proyectoia-b8nfsdkv4w6anf6cv22fed.streamlit.app/`
+**App desplegada:** `[https://proyectoia-b8nfsdkv4w6anf6cv22fed.streamlit.app/](https://avance-final-proyecto-ia-5zqcarkazrhvdoctnkogjv.streamlit.app/)`
 
 > El README del Avance 2 se conserva en [`avance2/README_avance2.md`](avance2/README_avance2.md).
 
